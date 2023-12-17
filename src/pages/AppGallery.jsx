@@ -54,7 +54,7 @@ export default function AppGallery() {
             src={`http://localhost:3000/${photos[centerCardIndex]?.image}`}
             alt={photos[centerCardIndex]?.title}
           />
-          <div>
+          <div className={style.containerInfoImg}>
             <h2>{photos[centerCardIndex]?.title}</h2>
             <p>{photos[centerCardIndex]?.description}</p>
             <p>

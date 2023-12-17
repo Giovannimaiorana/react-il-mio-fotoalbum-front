@@ -76,9 +76,15 @@ export default function AppLogin() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <button type="submit" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
-            </button>
+            <div className="flex items-center justify-center">
+              <button
+                className={style.ButtonSubmit}
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Logging in..." : "Login"}
+              </button>
+            </div>
           </form>
         </div>
       </div>

@@ -18,6 +18,7 @@
     margin-left: 20px;
     margin-right: 20px;
     box-shadow: 0 20px 20px rgba(0, 0, 0, 0.8); 
+    position: relative;
     
   }
   
@@ -37,6 +38,14 @@
     object-fit: cover;
     border-radius: 10px;
     filter: blur(1px);
+  }
+  .containerInfoImg{
+    position: absolute;
+    top: 0;
+    z-index: 3;
+    border: 1px solid white;
+    padding: 10px;
+    background-color: rgba(18, 14, 14, 0.6);
   }
 
   

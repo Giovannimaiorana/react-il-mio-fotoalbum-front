@@ -26,10 +26,12 @@ export default function AppHeader() {
                 Album
               </li>
             </Link>
+            <Link to="/contact">
+              <li className="ml-5 text-3xl tracking-widest text-white">
+                Contact
+              </li>
+            </Link>
 
-            <li className="ml-5 text-3xl tracking-widest text-white">
-              Contact
-            </li>
             {isLogged ? (
               <p
                 className="ml-5 text-3xl tracking-widest text-white"
