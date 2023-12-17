@@ -1,0 +1,42 @@
+.generalContainerGalley{
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(25, 43, 50);
+    display: flex;
+    justify-content: center;
+}
+.carouselContainer {
+    display: flex;
+    align-items: center;
+    
+  }
+  
+  .galleryCard {
+    width: 800px; 
+    height: 600px; 
+    box-sizing: border-box;
+    margin-left: 20px;
+    margin-right: 20px;
+    box-shadow: 0 20px 20px rgba(0, 0, 0, 0.8); 
+    
+  }
+  
+  .sideCard {
+    width: 300px;
+    height: 400px;
+    box-sizing: border-box;
+    cursor: pointer;
+    box-shadow:  30px 30px 30px rgba(0, 0, 0, 0.8); 
+   
+  
+  }
+  
+  .sideCard img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    filter: blur(1px);
+  }
+
+  
