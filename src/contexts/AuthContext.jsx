@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
     user: null,
     isLogged: false,
   });
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const storedAuthData = JSON.parse(localStorage.getItem("authData"));
@@ -38,12 +39,20 @@ export const AuthProvider = ({ children }) => {
       );
       localStorage.setItem("token", token);
       setAuthData({ user: userData, isLogged: true });
+      setError(null);
 
       console.log("Login effettuato");
 
       return true;
     } catch (error) {
       console.error("Errore durante il login:", error);
+
+      if (error.response && error.response.status === 401) {
+        setError("Password non corretta. Riprova.");
+      } else {
+        setError("Credenziali non valide. Riprova.");
+      }
+
       return false;
     }
   };
@@ -51,10 +60,11 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("authData");
     setAuthData({ user: null, isLogged: false });
+    setError(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isLogged, authData, login, logout }}>
+    <AuthContext.Provider value={{ isLogged, authData, login, logout, error }}>
       {children}
     </AuthContext.Provider>
   );

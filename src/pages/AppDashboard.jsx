@@ -3,32 +3,46 @@ import style from "../css/module/AppDashboard.module.css";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-export default function AppDashboard() {
+const AppDashboard = () => {
   const [photos, setPhotos] = useState([]);
   const [editPhoto, setEditPhoto] = useState(null);
   const [isEditFormVisible, setIsEditFormVisible] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [noImagesMessage, setNoImagesMessage] = useState("");
 
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/photo");
-        setPhotos(response.data);
+        setLoading(true);
+        const response = await axios.get(
+          `http://localhost:3000/photo?title=${searchTerm}`
+        );
+
+        if (response.data.length === 0) {
+          setPhotos([]);
+          setNoImagesMessage("Nessuna immagine con questo titolo");
+        } else {
+          setPhotos(response.data);
+          setNoImagesMessage("");
+        }
       } catch (error) {
         console.error("Error fetching photos:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchPhotos();
     fetchCategory();
-  }, []);
+  }, [searchTerm]);
 
   const fetchCategory = async () => {
     try {
       const responseCategories = await axios.get(
         "http://localhost:3000/category"
       );
-      console.log("CategoryFromBack:", responseCategories);
       setCategories(responseCategories.data);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -39,25 +53,42 @@ export default function AppDashboard() {
     setEditPhoto(photo);
     setIsEditFormVisible(true);
   };
+
   const handleDeleteClick = async (photo) => {
     try {
       await axios.delete(`http://localhost:3000/photo/${photo.slug}`);
-      // Dopo aver eliminato la foto, aggiorna lo stato eliminando la foto dalla lista
       setPhotos((prevPhotos) => prevPhotos.filter((p) => p.id !== photo.id));
     } catch (error) {
       console.error("Error deleting photo:", error);
     }
   };
 
+  const handleInputChange = (name, value) => {
+    setEditPhoto((prevEditPhoto) => ({
+      ...prevEditPhoto,
+      [name]: value,
+    }));
+  };
+
   const handleFormSubmit = async (editedData) => {
     try {
+      const publishedValue = editedData.published ? true : false;
+      console.log(editedData);
+
       await axios.put(
         `http://localhost:3000/photo/${editPhoto.slug}`,
-        editedData
+        { ...editedData, published: publishedValue },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
+
       const updatedPhotos = photos.map((photo) =>
         photo.id === editPhoto.id ? { ...photo, ...editedData } : photo
       );
+
       setPhotos(updatedPhotos);
       closeEditForm();
     } catch (error) {
@@ -81,59 +112,78 @@ export default function AppDashboard() {
             <p className="font-league text-2xl">Email in arrivo</p>
           </Link>
         </div>
+        <div>
+          <input
+            type="text"
+            placeholder="Inserisci il Titolo"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={style.SearchImg}
+          />
+        </div>
         <div className={style.containerTitleDashboard}>
           <p className="font-sanchez text-sm">ADMIN</p>
           <p className="font-league text-5xl tracking-widest">DASHBOARD</p>
         </div>
       </div>
 
-      <div className={style.PhotoGallery}>
-        {photos.map((photo) => (
-          <div key={photo.id} className={style.PhotoItem}>
-            <div>
-              <img
-                className={style.imgStyle}
-                src={`http://localhost:3000/${photo.image}`}
-                alt={photo.title}
-              />
-            </div>
-            <div>
-              <p className="font-league text-4xl text-white tracking-widest mb-3">
-                {photo.title}
-              </p>
-            </div>
-            <div>
-              <p className="text-white mb-3">{photo.description}</p>
-            </div>
-            <div>
-              <p className="mb-3">
-                {photo.categories.map((category) => (
-                  <span
-                    className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300 "
-                    key={category.id}
+      {loading ? (
+        <p>Caricamento...</p>
+      ) : (
+        <div className={style.PhotoGallery}>
+          {photos.length > 0 ? (
+            photos.map((photo) => (
+              <div key={photo.id} className={style.PhotoItem}>
+                <div>
+                  <img
+                    className={style.imgStyle}
+                    src={`http://localhost:3000/${photo.image}`}
+                    alt={photo.title}
+                  />
+                </div>
+                <div>
+                  <p className="font-league text-4xl text-white tracking-widest mb-3">
+                    {photo.title}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-white mb-3">{photo.description}</p>
+                </div>
+                <div>
+                  <p className="mb-3">
+                    {photo.categories.map((category) => (
+                      <span
+                        className="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300 "
+                        key={category.id}
+                      >
+                        {category.name}{" "}
+                      </span>
+                    ))}
+                  </p>
+                </div>
+                <div>
+                  <button
+                    className={style.ButtonSubmit}
+                    onClick={() => handleEditClick(photo)}
                   >
-                    {category.name}{" "}
-                  </span>
-                ))}
-              </p>
-            </div>
-            <div>
-              <button
-                className="text-yellow-400 hover:text-white border border-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-yellow-300 dark:text-yellow-300 dark:hover:text-white dark:hover:bg-yellow-400 dark:focus:ring-yellow-900"
-                onClick={() => handleEditClick(photo)}
-              >
-                Edit
-              </button>
-              <button
-                className="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
-                onClick={() => handleDeleteClick(photo)}
-              >
-                Elimina
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+                    Edit
+                  </button>
+                  <button
+                    className={style.ButtonSubmit}
+                    onClick={() => handleDeleteClick(photo)}
+                  >
+                    Elimina
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="ml-5 text-3xl tracking-widest text-white">
+              {noImagesMessage}
+            </p>
+          )}
+        </div>
+      )}
 
       {isEditFormVisible && (
         <div className={style.EditFormOverlay}>
@@ -143,10 +193,11 @@ export default function AppDashboard() {
             </h2>
             <form
               onSubmit={(e) => {
+                console.log(editPhoto);
                 e.preventDefault();
-                const formData = new FormData(e.target);
-                const editedData = Object.fromEntries(formData.entries());
-                handleFormSubmit(editedData);
+                if (editPhoto) {
+                  handleFormSubmit(editPhoto);
+                }
               }}
             >
               <div className={style.FormInput}>
@@ -157,10 +208,12 @@ export default function AppDashboard() {
                   className={style.inputStyle}
                   type="text"
                   name="title"
-                  defaultValue={editPhoto.title}
+                  value={editPhoto.title}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
                   required
                 />
               </div>
+
               <div className={style.FormInput}>
                 <label className="font-league text-2xl text-white tracking-widest">
                   Description
@@ -168,7 +221,10 @@ export default function AppDashboard() {
                 <textarea
                   className={style.inputStyle}
                   name="description"
-                  defaultValue={editPhoto.description}
+                  value={editPhoto.description}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   required
                 ></textarea>
               </div>
@@ -186,6 +242,16 @@ export default function AppDashboard() {
                       defaultChecked={editPhoto.categories.some(
                         (cat) => cat.id === category.id
                       )}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "categories",
+                          e.target.checked
+                            ? [...editPhoto.categories, category]
+                            : editPhoto.categories.filter(
+                                (cat) => cat.id !== category.id
+                              )
+                        )
+                      }
                     />
                     <label
                       className="font-sanchez text-sm text-white ml-2"
@@ -196,12 +262,23 @@ export default function AppDashboard() {
                   </div>
                 ))}
               </div>
+              <div className={style.FormInput}>
+                <label className="font-league text-2xl text-white tracking-widest">
+                  Published
+                </label>
+                <input
+                  type="checkbox"
+                  id="published"
+                  name="published"
+                  defaultChecked={editPhoto.published}
+                  onChange={(e) =>
+                    handleInputChange("published", e.target.checked)
+                  }
+                />
+              </div>
 
               <div className={style.FormInput}>
-                <button
-                  className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800 mt-5"
-                  type="submit"
-                >
+                <button className={style.ButtonSubmit} type="submit">
                   Save
                 </button>
               </div>
@@ -214,4 +291,6 @@ export default function AppDashboard() {
       )}
     </div>
   );
-}
+};
+
+export default AppDashboard;

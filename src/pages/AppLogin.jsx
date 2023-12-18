@@ -7,8 +7,10 @@ export default function AppLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { login, isLogged } = useAuth();
+  // Aggiungi uno stato locale per l'errore
+  const [localError, setLocalError] = useState(null);
+
+  const { login, isLogged, error } = useAuth();
   console.log("Auth context:", useAuth());
   const navigate = useNavigate();
 
@@ -18,28 +20,22 @@ export default function AppLogin() {
     }
   }, [isLogged, navigate]);
 
+  // Effettua il login e gestisci l'errore
   const handleLogin = async (e) => {
     e.preventDefault();
 
     setLoading(true);
-    setError(null);
+    setLocalError(null);
 
     try {
-      const loginSuccess = await login(email, password);
-      console.log("Login success:", loginSuccess);
-      if (loginSuccess) {
-      }
+      const response = await login(email, password);
+      console.log("Login success:", response);
     } catch (error) {
-      throw new Error(error);
-      console.log("Dettagli dell'errore:", Error);
+      console.error("Dettagli dell'errore:", error);
 
-      if (error.response && error.response.status === 404) {
-        setError("Credenziali non valide. Riprova.");
-      } else {
-        setError(
-          "Si è verificato un errore durante il login. Riprova più tardi."
-        );
-      }
+      // Usa l'errore dal contesto o uno stato locale
+      const errorMessage = error.response?.data?.error || error.message;
+      setLocalError(errorMessage || "Si è verificato un errore.");
     } finally {
       setLoading(false);
     }
@@ -50,6 +46,11 @@ export default function AppLogin() {
       <div className={style.cotnainerForm}>
         <div className={style.formStyle}>
           <form onSubmit={handleLogin}>
+            {(error || localError) && (
+              <div className={style.errorContainer}>
+                <p className={style.erroItem}>{error || localError}</p>
+              </div>
+            )}
             <div className="flex flex-col items-center justify-center mb-8">
               <label className={style.labelForm} htmlFor="email">
                 Email

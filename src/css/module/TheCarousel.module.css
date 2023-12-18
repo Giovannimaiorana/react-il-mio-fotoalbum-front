@@ -24,8 +24,8 @@
     border-radius: 100%;
     border: none;
     position: absolute;
-    top: 100%;
-    right: 65px;
+    top: 470px;
+    right: 66px;
     color: white;
     z-index: 20;
 }
@@ -35,7 +35,7 @@
     border-radius: 100%;
     border: none;
     position: absolute;
-    top: 60%;
+    top: 350px;
     right: 66px;
     color: white;
     z-index: 20;
@@ -109,8 +109,6 @@
 .animatingBullet {
     animation: slideDown 0.7s ease-in-out;
   }
-  
-
   .containerSlogan{
     z-index: 50;
     position: absolute;
@@ -121,6 +119,7 @@
     position: absolute;
     bottom: -70%;
     left: 50%;
+    transform: translate(-50%);
     z-index: 20;
     display: flex;
     padding: 10px;

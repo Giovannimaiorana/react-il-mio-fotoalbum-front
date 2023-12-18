@@ -55,18 +55,36 @@ export default function AppGallery() {
             alt={photos[centerCardIndex]?.title}
           />
           <div className={style.containerInfoImg}>
-            <h2>{photos[centerCardIndex]?.title}</h2>
-            <p>{photos[centerCardIndex]?.description}</p>
-            <p>
+            <h2 className="font-league text-5xl tracking-widest text-white">
+              {photos[centerCardIndex]?.title}
+            </h2>
+            <p className="font-sanchez text-sm text-white">
+              {photos[centerCardIndex]?.description}
+            </p>
+            <p className="font-sanchez text-sm text-white">
               {photos[centerCardIndex]?.categories.map((category) => (
                 <span key={category.id}>{category.name}</span>
               ))}
             </p>
           </div>
-
-          <button onClick={() => handleShowPost(photos[centerCardIndex]?.slug)}>
-            Show
-          </button>
+          <div className={style.containerShow}>
+            <span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+                />
+              </svg>
+            </span>
+          </div>
         </div>
 
         <div className={style.sideCard} onClick={handleNextCard}>
